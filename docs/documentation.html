@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>User documentation — ForensicVision</title>
+<meta name="description" content="How to install and use ForensicVision: cases, evidence import, degradation analysis, restoration pipelines, the Model Manager, comparison, reports, Forensic Safe Mode, shortcuts and troubleshooting.">
+<meta name="author" content="Sihab Sahariar">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23101216'/><circle cx='14' cy='14' r='7' fill='none' stroke='%233d8bcd' stroke-width='2.5'/><path d='M19.5 19.5 26 26' stroke='%233d8bcd' stroke-width='3' stroke-linecap='round'/></svg>">
+<link rel="stylesheet" href="assets/style.css">
+<script>
+  (function () {
+    try {
+      var saved = localStorage.getItem("fv-theme");
+      var prefersLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+      if (saved === "light" || (!saved && prefersLight)) {
+        document.documentElement.setAttribute("data-theme", "light");
+      }
+    } catch (e) { /* storage blocked; keep the dark default */ }
+  })();
+</script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" href="index.html">
+      <svg viewBox="0 0 32 32" aria-hidden="true">
+        <rect width="32" height="32" rx="7" fill="currentColor" opacity=".08"/>
+        <circle cx="14" cy="14" r="7.5" fill="none" stroke="#3d8bcd" stroke-width="2.4"/>
+        <path d="M19.5 19.5 26.5 26.5" stroke="#3d8bcd" stroke-width="3" stroke-linecap="round"/>
+        <path d="M10.5 14h7M14 10.5v7" stroke="#4c9e6b" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <span>ForensicVision</span><em>docs</em>
+    </a>
+
+    <nav class="site-nav" id="site-nav">
+      <a href="index.html#features">Features</a>
+      <a href="index.html#screenshots">Screenshots</a>
+      <a href="index.html#compare">Comparison</a>
+      <a href="index.html#install">Install</a>
+      <a href="documentation.html" class="is-active">Documentation</a>
+    </nav>
+
+    <div class="header-tools">
+      <a class="icon-btn" href="https://github.com/sihabsahariar/ForensicVision"
+         target="_blank" rel="noopener" aria-label="ForensicVision on GitHub" title="View on GitHub">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+      </a>
+      <button class="icon-btn theme-toggle" type="button" aria-label="Switch to light theme">
+        <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"/></svg>
+        <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+      <button class="icon-btn nav-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Toggle navigation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap docs">
+
+  <!-- ================================================= sidebar -->
+  <aside class="docs-nav" data-spy>
+    <h4>Getting started</h4>
+    <ul>
+      <li><a href="#requirements">Requirements</a></li>
+      <li><a href="#installation">Installation</a></li>
+      <li><a href="#gpu">GPU acceleration</a></li>
+      <li><a href="#first-run">First run</a></li>
+      <li><a href="#interface">The interface</a></li>
+    </ul>
+
+    <h4>Working a case</h4>
+    <ul>
+      <li><a href="#cases">Creating a case</a></li>
+      <li><a href="#evidence">Importing evidence</a></li>
+      <li><a href="#analysis">Analysing an image</a></li>
+      <li><a href="#visualisations">Forensic visualisations</a></li>
+      <li><a href="#regions">Regions of interest</a></li>
+      <li><a href="#restoration">Restoring an image</a></li>
+      <li><a href="#comparison">Comparing results</a></li>
+      <li><a href="#export">Exporting a derivative</a></li>
+      <li><a href="#reports">Generating a report</a></li>
+    </ul>
+
+    <h4>Tools</h4>
+    <ul>
+      <li><a href="#models">Model Manager</a></li>
+      <li><a href="#batch">Batch processing</a></li>
+      <li><a href="#ocr">OCR and detection</a></li>
+      <li><a href="#safe-mode">Forensic Safe Mode</a></li>
+      <li><a href="#preferences">Preferences</a></li>
+    </ul>
+
+    <h4>Reference</h4>
+    <ul>
+      <li><a href="#shortcuts">Keyboard shortcuts</a></li>
+      <li><a href="#cli">Command line</a></li>
+      <li><a href="#layout">Case folder layout</a></li>
+      <li><a href="#scripting">Scripting the engine</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="#limits">Limitations</a></li>
+    </ul>
+  </aside>
+
+  <!-- ================================================= body -->
+  <main class="docs-body">
+
+    <div class="doc-hero">
+      <span class="eyebrow">User documentation</span>
+      <h1>Using ForensicVision</h1>
+      <p class="lede">
+        Everything from installing the application to producing a court-ready PDF.
+        Written against version 1.0.0. If something here disagrees with the
+        application, the application is right — please
+        <a href="https://github.com/sihabsahariar/ForensicVision/issues" target="_blank" rel="noopener">open an issue</a>.
+      </p>
+
+      <div class="callout callout--danger">
+        <div class="callout__title">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 9v5M12 17.5h.01"/><path d="M10.3 3.9 1.8 18.4A2 2 0 0 0 3.5 21.4h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          Read this before using any output in a proceeding
+        </div>
+        <p class="small muted" style="margin:0">
+          Enhanced imagery is a <strong>derivative representation</strong>. Neural
+          models can introduce structures — including characters and facial features
+          — that are not present in the source. Read
+          <a href="https://github.com/sihabsahariar/ForensicVision/blob/main/docs/LIMITATIONS.md" target="_blank" rel="noopener">LIMITATIONS.md</a>
+          in full, and see <a href="#limits">Limitations</a> below for a summary.
+        </p>
+      </div>
+    </div>
+
+    <!-- ============================================ requirements -->
+    <h2 id="requirements">Requirements</h2>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Component</th><th>Minimum</th><th>Recommended</th></tr></thead>
+        <tbody>
+          <tr><td>Operating system</td><td>Windows 10, or Linux with a desktop session</td><td>Windows 11, or Ubuntu 22.04+</td></tr>
+          <tr><td>Python</td><td>3.11</td><td>3.11 or 3.12</td></tr>
+          <tr><td>Memory</td><td>8 GB</td><td>16 GB or more for large frames</td></tr>
+          <tr><td>Disk</td><td>2 GB for the application</td><td>+ up to 3 GB if you install every model</td></tr>
+          <tr><td>GPU</td><td>None — everything runs on CPU</td><td>NVIDIA with 6 GB VRAM or more, CUDA 12.x</td></tr>
+          <tr><td>Display</td><td>1366 × 768</td><td>1920 × 1080 or larger</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="muted small">
+      There is no internet requirement. The only network activity the application
+      ever performs is a model-weight download that you start yourself.
+    </p>
+
+    <!-- ============================================ installation -->
+    <h2 id="installation">Installation</h2>
+
+    <div class="tabs" data-tabs>
+      <div class="tabs__list" role="tablist" aria-label="Operating system">
+        <button class="tabs__btn" type="button" role="tab" aria-selected="true">Windows</button>
+        <button class="tabs__btn" type="button" role="tab" aria-selected="false">Linux</button>
+      </div>
+
+      <div class="tabs__panel" role="tabpanel">
+        <p class="muted small">
+          Install Python 3.11 from <a href="https://www.python.org/downloads/" target="_blank" rel="noopener">python.org</a>
+          with <em>Add python.exe to PATH</em> ticked, then:
+        </p>
+        <div class="code">
+          <div class="code__head"><span>PowerShell</span><button class="copy" type="button">Copy</button></div>
+<pre>git clone https://github.com/sihabsahariar/ForensicVision.git
+cd ForensicVision
+
+py -3.11 -m venv .venv
+.venv\Scripts\Activate.ps1
+
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+python main.py --check</pre>
+        </div>
+        <p class="muted small">
+          If PowerShell refuses to run the activation script, allow it for the
+          current user with
+          <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>.
+        </p>
+      </div>
+
+      <div class="tabs__panel" role="tabpanel" hidden>
+        <p class="muted small">
+          Qt needs a few system libraries that are not pulled in by pip:
+        </p>
+        <div class="code">
+          <div class="code__head"><span>bash — Debian / Ubuntu</span><button class="copy" type="button">Copy</button></div>
+<pre>sudo apt update
+sudo apt install python3.11 python3.11-venv git \
+                 libgl1 libglib2.0-0 libxkbcommon-x11-0 \
+                 libxcb-cursor0 libxcb-icccm4 libxcb-image0 \
+                 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+                 libxcb-xinerama0 libxcb-shape0
+
+git clone https://github.com/sihabsahariar/ForensicVision.git
+cd ForensicVision
+python3.11 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+python main.py --check</pre>
+        </div>
+        <p class="muted small">
+          On Fedora the equivalent packages are <code>mesa-libGL</code>,
+          <code>libxkbcommon-x11</code> and <code>xcb-util-cursor</code>.
+        </p>
+      </div>
+    </div>
+
+    <p>
+      <code>python main.py --check</code> prints the environment report: Python
+      version, whether PyTorch and CUDA were found, the weights folder and how many
+      models are ready. It exits without starting the GUI, so it is safe to run over
+      SSH or in CI.
+    </p>
+
+    <div class="callout callout--ok">
+      <div class="callout__title">Verify a build end to end</div>
+      <p class="small muted" style="margin:0">
+        <code>python main.py --self-test</code> goes further: it creates a real case
+        in a temporary folder, imports evidence, verifies its integrity, runs a
+        classical operator and a neural model, writes a derivative with its
+        provenance sidecar, renders a PDF report and cleans up. Thirteen checks. Use
+        it after any install, upgrade or packaging change.
+      </p>
+    </div>
+
+    <!-- ============================================ gpu -->
+    <h2 id="gpu">GPU acceleration</h2>
+
+    <p>
+      Neural models run on CPU by default. To use an NVIDIA GPU, install a CUDA build
+      of PyTorch <em>before</em> or <em>after</em> the requirements file — the wheel
+      index decides which build you get:
+    </p>
+
+    <div class="code">
+      <div class="code__head"><span>shell</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="c"># CUDA 12.6 build (check pytorch.org for the current index URL)</span>
+pip install torch --index-url https://download.pytorch.org/whl/cu126
+
+<span class="c"># confirm the GPU is visible</span>
+python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_name(0))"</pre>
+    </div>
+
+    <p>
+      The status bar shows the active device, the CUDA version and live VRAM use. If
+      an inference run exhausts VRAM, ForensicVision retries with a smaller tile
+      before giving up, and tells you in the log that it did so. You can pin the tile
+      size yourself in <strong>Tools → Preferences</strong>.
+    </p>
+
+    <ul>
+      <li><strong>Tile size</strong> — the square the image is cut into for inference. Lower it if you run out of memory; raise it for slightly better quality at block boundaries.</li>
+      <li><strong>Tile overlap</strong> — how far tiles extend into their neighbours. The overlap is blended with a raised-cosine window, so seams do not appear.</li>
+      <li><strong>FP16</strong> — halves VRAM use on supported cards. It changes results in the last decimal places; the precision used is recorded in the provenance record.</li>
+    </ul>
+
+    <p class="muted small">
+      Full detail, including the CUDA/PyTorch compatibility matrix, is in
+      <a href="https://github.com/sihabsahariar/ForensicVision/blob/main/docs/GPU_SETUP.md" target="_blank" rel="noopener">GPU_SETUP.md</a>.
+    </p>
+
+    <!-- ============================================ first run -->
+    <h2 id="first-run">First run</h2>
+
+    <div class="code">
+      <div class="code__head"><span>shell</span><button class="copy" type="button">Copy</button></div>
+<pre>python main.py</pre>
+    </div>
+
+    <p>
+      On first launch ForensicVision creates a configuration folder and an empty
+      cases folder, and opens with no case loaded. Nothing is downloaded. The status
+      bar reads <strong>Models: N/30 ready</strong> — the classical operators are
+      always ready; the rest become ready once you install their weights.
+    </p>
+
+    <p>To have something to work with immediately:</p>
+
+    <div class="code">
+      <div class="code__head"><span>shell</span><button class="copy" type="button">Copy</button></div>
+<pre>python scripts/make_sample.py                             <span class="c"># ten synthetic test images</span>
+python main.py --image samples/sample_cctv.jpg --no-case  <span class="c"># open one without a case</span></pre>
+    </div>
+
+    <!-- ============================================ interface -->
+    <h2 id="interface">The interface</h2>
+
+    <img src="screenshots/01-main-window.png" loading="lazy" width="2560" height="1334"
+         alt="The ForensicVision main window annotated by region: menu bar, toolbar, viewer tabs, inspector and status bar">
+
+    <ol>
+      <li><strong>Menu bar</strong> — File, Case, Evidence, Analysis, Restoration, View, Tools, Help.</li>
+      <li><strong>Toolbar</strong> — the eight most frequent actions.</li>
+      <li><strong>Viewer / Compare tabs</strong> — the image, and the before/after workspace.</li>
+      <li><strong>Inspector</strong> — one dock with five tabs: <em>Case</em>, <em>Analysis</em>, <em>Restore</em>, <em>History</em>, <em>Log</em>. Jump with <kbd>Alt</kbd>+<kbd>1</kbd>…<kbd>5</kbd>, cycle with <kbd>Ctrl</kbd>+<kbd>Tab</kbd>, hide with <kbd>F9</kbd>.</li>
+      <li><strong>Status bar</strong> — the safe-mode lock, the compute device, VRAM, and how many models are ready.</li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout__title">Right-click is the fast path</div>
+      <p class="small muted" style="margin:0">
+        The image viewer's context menu carries most of the application — analysis,
+        forensic visualisations, auto enhance, selection tools, region actions, zoom
+        presets, compare, detection, OCR, export and pixel copying. It is built from
+        the same actions as the menu bar, so enabled state and shortcuts always
+        agree. <kbd>F11</kbd> hides the Inspector entirely and gives the image 82% of
+        the window.
+      </p>
+    </div>
+
+    <h3 id="viewing">Viewing and navigation</h3>
+    <ul>
+      <li><strong>Zoom</strong> — mouse wheel zooms under the cursor; <kbd>1</kbd> <kbd>2</kbd> <kbd>4</kbd> <kbd>8</kbd> jump to 100/200/400/800%; <kbd>F</kbd> fits, <kbd>R</kbd> resets.</li>
+      <li><strong>Pan</strong> — middle-drag, or hold <kbd>Space</kbd> and drag.</li>
+      <li><strong>Pixel readout</strong> — hover for coordinates, RGB, grey and HSV, sampled from the source array rather than the rendered pixmap. <kbd>C</kbd> toggles a crosshair.</li>
+      <li><strong>Above 200% zoom the image is drawn with nearest-neighbour sampling</strong>, so you inspect real samples instead of an interpolated reconstruction.</li>
+    </ul>
+
+    <!-- ============================================ cases -->
+    <h2 id="cases">Creating a case</h2>
+
+    <p>
+      <strong>File → New Case</strong> (<kbd>Ctrl</kbd>+<kbd>N</kbd>). You are asked
+      for a case ID, a title, the investigator, the organisation and a description.
+      All of it is written into the case manifest and printed on the report's title
+      page.
+    </p>
+
+    <p>
+      A case is a single self-contained folder with its own SQLite database, so it
+      can be zipped, archived or handed over as a unit. See
+      <a href="#layout">Case folder layout</a>. <strong>File → Recent Cases</strong>
+      reopens the last few; <strong>Ctrl</strong>+<strong>Shift</strong>+<strong>O</strong>
+      opens any other.
+    </p>
+
+    <!-- ============================================ evidence -->
+    <h2 id="evidence">Importing evidence</h2>
+
+    <p>
+      <strong>File → Import Evidence</strong> (<kbd>Ctrl</kbd>+<kbd>O</kbd>). Accepted
+      formats: <code>.jpg</code> <code>.jpeg</code> <code>.jpe</code> <code>.png</code>
+      <code>.bmp</code> <code>.tif</code> <code>.tiff</code> <code>.webp</code>.
+    </p>
+
+    <p>Import performs five things, in this order:</p>
+    <ol>
+      <li>Copies the file into <code>evidence/original/</code> — <strong>the file you selected is never modified or moved</strong>.</li>
+      <li>Computes SHA-256, SHA-512 and MD5 of the stored copy. SHA-256 is authoritative; MD5 exists only to cross-reference legacy tooling.</li>
+      <li>Extracts EXIF, IPTC, XMP where present, plus image geometry and — for JPEG — the quantisation tables.</li>
+      <li>Marks the stored copy read-only on the filesystem while Safe Mode is on.</li>
+      <li>Writes an <code>evidence.import</code> audit entry recording the source path, the digest and the safe-mode state at the time.</li>
+    </ol>
+
+    <p>
+      The <strong>Case</strong> tab then shows the tree and, below it, every metadata
+      field with its value. <em>Copy SHA-256</em> puts the digest on the clipboard;
+      <em>Verify integrity</em> re-hashes the stored file and compares it against the
+      recorded digest.
+    </p>
+
+    <div class="callout callout--warn">
+      <div class="callout__title">What the chain of custody can and cannot say</div>
+      <p class="small muted" style="margin:0">
+        ForensicVision records custody from the moment of import. It cannot attest to
+        anything before that — how the file was produced, transferred or handled
+        beforehand is outside its knowledge. Import records the source path and the
+        digest of the copy it stores, and nothing more.
+      </p>
+    </div>
+
+    <!-- ============================================ analysis -->
+    <h2 id="analysis">Analysing an image</h2>
+
+    <p>
+      <strong>Analysis → Analyse Image</strong> (<kbd>A</kbd>), or right-click the
+      image. Results appear on the <strong>Analysis</strong> tab as nine indicators,
+      each scored 0–100 and colour-coded green, amber or red.
+    </p>
+
+    <img src="screenshots/02-analysis.png" loading="lazy" width="2560" height="1334"
+         alt="The Analysis tab with nine indicators and the dominant-indicator summary">
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Indicator</th><th>What it measures</th><th>Typical response</th></tr></thead>
+        <tbody>
+          <tr><td>Blur</td><td>Crete perceptual blur, Laplacian variance, spectral high-frequency ratio</td><td>Deconvolution, or a super-resolution model</td></tr>
+          <tr><td>Motion blur</td><td>Directional gradient-energy anisotropy, gated by blur level — reports an angle</td><td>Wiener with the reported angle, or Restormer</td></tr>
+          <tr><td>Noise</td><td>Immerkaer fast variance and Haar-MAD sigma, luminance and chroma separately</td><td>Non-local means, or DnCNN / Restormer</td></tr>
+          <tr><td>JPEG artefacts</td><td>Phase-selective 8×8 block discontinuity, near-edge ringing, and the container's own quantisation tables</td><td>Deblocking, or FBCNN</td></tr>
+          <tr><td>Low resolution</td><td>Absolute size, plus an outer/mid spectral annulus ratio that detects prior upscaling</td><td>Lanczos for a baseline, then Real-ESRGAN or SwinIR</td></tr>
+          <tr><td>Underexposure</td><td>Median luminance and shadow clipping fraction</td><td>Exposure correction, then CLAHE</td></tr>
+          <tr><td>Overexposure</td><td>Highlight clipping fraction per channel</td><td>Exposure correction — clipped detail is gone, not recoverable</td></tr>
+          <tr><td>Low contrast</td><td>Percentile dynamic range, RMS contrast, histogram entropy</td><td>CLAHE</td></tr>
+          <tr><td>Haze</td><td>Dark-channel lower quartile, saturation, relative local contrast, transmission uniformity</td><td>Dark-channel-prior dehaze</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      <strong>Detailed analysis</strong> opens the full report: for every indicator,
+      the estimator's name and each raw measurement it produced. Right-click a bar to
+      copy a single score, all scores, or the raw measurements behind one.
+    </p>
+
+    <div class="callout callout--warn">
+      <div class="callout__title">These are indicators, not verdicts</div>
+      <p class="small muted" style="margin:0">
+        Every score is a heuristic derived from classical image statistics, not the
+        output of a validated classifier. Some degradations are genuinely ambiguous:
+        heavy blur and heavy upscaling produce similar spectra, and the tool cannot
+        always separate them. Read the raw measurements before acting on a score.
+      </p>
+    </div>
+
+    <p>
+      The <strong>JPEG artefacts</strong> indicator is the one exception worth
+      knowing about: when the file is a JPEG, the encoder's quantisation tables are
+      read directly from the container. That is a <em>measurement</em>, not an
+      estimate — encode quality is recovered to within a point.
+    </p>
+
+    <!-- ============================================ visualisations -->
+    <h2 id="visualisations">Forensic visualisations</h2>
+
+    <p>
+      <strong>Analysis → Forensic Visualisations</strong>, or right-click the image.
+      Eleven renderings are available, all drawn in place of the image without
+      modifying it. <em>Clear Visualisation</em> returns to the frame.
+    </p>
+
+    <div class="grid grid--2">
+      <div class="card">
+        <h3>Statistical</h3>
+        <p>RGB histogram · Luminance histogram · Grayscale · Saturation map · Exposure map · Clipping map</p>
+      </div>
+      <div class="card">
+        <h3>Structural</h3>
+        <p>Edge map · High pass · Noise residual · Frequency spectrum · Error level analysis</p>
+      </div>
+    </div>
+
+    <p style="margin-top:20px">
+      <strong>Error level analysis</strong> deserves a caveat: it highlights regions
+      that recompress differently from their surroundings. That can indicate editing,
+      but it is also produced by ordinary things — resizing, text overlays, differing
+      local detail. ELA is an aid to looking, never a verdict on authenticity.
+    </p>
+
+    <!-- ============================================ regions -->
+    <h2 id="regions">Regions of interest</h2>
+
+    <p>
+      Pick a selection tool from <strong>Evidence</strong>, the toolbar or the context
+      menu: rectangle (<kbd>Ctrl</kbd>+<kbd>1</kbd>), ellipse
+      (<kbd>Ctrl</kbd>+<kbd>2</kbd>), polygon (<kbd>Ctrl</kbd>+<kbd>3</kbd>) or
+      freehand (<kbd>Ctrl</kbd>+<kbd>4</kbd>). Drag on the image to draw;
+      <kbd>Esc</kbd> cancels. For a polygon, right-click closes the shape.
+    </p>
+
+    <p>With a region active you can:</p>
+    <ul>
+      <li><strong>Analyse ROI</strong> (<kbd>Shift</kbd>+<kbd>A</kbd>) — score only that region, which is usually far more useful than a whole-frame score when one part of the image is the point.</li>
+      <li><strong>Enhance ROI</strong> (<kbd>Shift</kbd>+<kbd>E</kbd>) — restore only that region and blend it back.</li>
+      <li><strong>Crop to ROI</strong> — create a cropped derivative, itself hashed and recorded.</li>
+      <li><strong>Export ROI</strong> — write just that region to a file.</li>
+      <li><strong>Zoom to ROI</strong> — fill the viewport with it.</li>
+    </ul>
+
+    <!-- ============================================ restoration -->
+    <h2 id="restoration">Restoring an image</h2>
+
+    <h3 id="auto-enhance">Auto Enhance — the recommended path</h3>
+
+    <p>
+      <strong>Restoration → Auto Enhance</strong> (<kbd>E</kbd>). The engine reads the
+      analysis, chooses operators for the indicators above threshold, orders them
+      sensibly — artefact removal before contrast, enlargement last — and shows you
+      the proposal.
+    </p>
+
+    <img src="screenshots/03-pipeline-review.png" loading="lazy" width="2000" height="1320"
+         alt="The pipeline review dialog listing three steps with rationale and a generative-step warning">
+
+    <p><strong>Nothing has run at this point.</strong> In the review dialog you can:</p>
+    <ul>
+      <li>read the <em>rationale</em> for each step — which measurement triggered it, why it sits where it does, and what non-generative alternative exists;</li>
+      <li>reorder steps with <em>Up</em> and <em>Down</em>;</li>
+      <li>untick a step to skip it while keeping it in the record;</li>
+      <li>select a step and change its parameters;</li>
+      <li>add a step the recommendation did not include;</li>
+      <li>press <em>Cancel</em> and run nothing at all.</li>
+    </ul>
+
+    <p>
+      Neural steps are shown in amber, and a banner names the pipeline as containing
+      a generative step. Confirm and the pipeline runs on a worker thread; the
+      progress bar reports each step, and <em>Cancel</em> stops at the next step
+      boundary rather than mid-write.
+    </p>
+
+    <h3 id="manual">Running a single operator</h3>
+
+    <p>
+      The <strong>Restore</strong> tab groups all thirty operators by task. Expand a
+      group, choose a model, and its description, kind and readiness appear beneath
+      it, followed by the controls for its parameters.
+    </p>
+
+    <img src="screenshots/11-restoration-panel.png" loading="lazy" width="2564" height="1440"
+         alt="The Restore tab with the Super Resolution group expanded, showing Lanczos Upscale and its parameters">
+
+    <ul>
+      <li><strong>Preview</strong> — run on the visible region only, without recording anything.</li>
+      <li><strong>Run</strong> — execute on the whole image and register the derivative.</li>
+      <li><strong>Add to pipeline</strong> — stage the step. Build several, then <em>Edit pipeline…</em> to review, or <kbd>Ctrl</kbd>+<kbd>R</kbd> to run the staged sequence.</li>
+    </ul>
+
+    <p>
+      Each step's output becomes the next step's input, and the digests chain: step
+      <em>N</em>'s output digest is step <em>N+1</em>'s input digest. That makes the
+      route from original to final derivative verifiable link by link, not just end
+      to end. <strong>Restoration → Return to Original</strong> discards the working
+      derivative from the view; it does not delete anything already recorded.
+    </p>
+
+    <h3 id="face">Face restoration</h3>
+
+    <div class="callout callout--danger">
+      <div class="callout__title">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 9v5M12 17.5h.01"/><path d="M10.3 3.9 1.8 18.4A2 2 0 0 0 3.5 21.4h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+        Never use face restoration for identification
+      </div>
+      <p class="small muted" style="margin:0 0 10px">
+        On the standard <code>astronaut</code> benchmark degraded to 128 px,
+        CodeFormer produced a sharp, confident face <strong>wearing eyeglasses the
+        subject does not wear</strong>, and altered apparent age, face shape and
+        hairline. Nothing in the output separates the measured features from the
+        invented ones.
+      </p>
+      <p class="small muted" style="margin:0">
+        The application therefore requires a face-specific confirmation before every
+        run, measures and records the inter-ocular distance of each source face
+        (warning below 30 px), exposes the fidelity weight so you can sweep it, and
+        marks every result <code>may synthesise</code>. Treat the output as an
+        illustration of what a model considers plausible — never as a depiction of a
+        person.
+      </p>
+    </div>
+
+    <!-- ============================================ comparison -->
+    <h2 id="comparison">Comparing results</h2>
+
+    <p>
+      <strong>View → Compare Original / Enhanced</strong>
+      (<kbd>Ctrl</kbd>+<kbd>D</kbd>) opens the Compare tab.
+    </p>
+
+    <img src="screenshots/04-comparison.png" loading="lazy" width="2560" height="1334"
+         alt="Side-by-side comparison with the processing history panel">
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Mode</th><th>What it shows</th></tr></thead>
+        <tbody>
+          <tr><td>Side by side</td><td>Two panes, zoom and pan locked together at the same <em>apparent</em> scale even when the derivative is four times larger.</td></tr>
+          <tr><td>Split view</td><td>One frame with a draggable divider.</td></tr>
+          <tr><td>Overlay</td><td>The two images blended, with an opacity slider.</td></tr>
+          <tr><td>Difference</td><td>Five renderings — absolute RGB, grayscale, amplified ×8, edge and heatmap — with mean and maximum difference, percentage of pixels changed, and PSNR.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout--warn">
+      <div class="callout__title">A difference map is a visualisation</div>
+      <p class="small muted" style="margin:0">
+        Difference maps are rendered with a chosen gain and colour mapping, so their
+        apparent intensity is a display choice, not a measurement. Where the two
+        images differ in size the original is resampled for comparison, which itself
+        introduces small differences. The banner under the view says so, permanently.
+      </p>
+    </div>
+
+    <!-- ============================================ export -->
+    <h2 id="export">Exporting a derivative</h2>
+
+    <p>
+      <strong>File → Export Derivative</strong> (<kbd>Ctrl</kbd>+<kbd>S</kbd>), or
+      <em>Export As…</em> (<kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) to choose a
+      path and format.
+    </p>
+
+    <p>
+      Prefer a lossless format — <code>.png</code>, <code>.tif</code>,
+      <code>.tiff</code> or <code>.bmp</code> — so the exported pixels are
+      bit-identical to the derivative that was hashed. Exporting to JPEG recompresses
+      the image, and the file you hand over will no longer match the digest in the
+      report.
+    </p>
+
+    <p>
+      Every export writes a JSON provenance sidecar next to the image recording the
+      input digest, the model, its version and licence, every parameter, the device,
+      the precision and the timestamp.
+    </p>
+
+    <!-- ============================================ reports -->
+    <h2 id="reports">Generating a report</h2>
+
+    <p>
+      <strong>Case → Generate Report</strong> (<kbd>Ctrl</kbd>+<kbd>P</kbd>). Choose
+      an output path, name the investigator and organisation, add any
+      case-specific limitations, and pick which optional sections to include —
+      metadata, before/after images, the difference map and the audit trail.
+    </p>
+
+    <img src="screenshots/12-pdf-report.png" loading="lazy" width="1848" height="1332"
+         alt="The report's title page beside its model provenance section">
+
+    <p>The PDF has fourteen sections:</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>#</th><th>Section</th><th>Contents</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Case information</td><td>ID, title, investigator, organisation, description, counts</td></tr>
+          <tr><td>2</td><td>Evidence information</td><td>Filename, source path, stored path, import time, geometry, bit depth</td></tr>
+          <tr><td>3</td><td>Cryptographic hashes</td><td>SHA-256, SHA-512, MD5 with the MD5 advisory</td></tr>
+          <tr><td>4</td><td>Metadata</td><td>EXIF, IPTC, XMP and JPEG quantisation tables</td></tr>
+          <tr><td>5</td><td>Image analysis</td><td>Every indicator with its raw measurements</td></tr>
+          <tr><td>6</td><td>Restoration pipeline</td><td>Each step with task, kind, <code>may synthesise</code>, and the rationale</td></tr>
+          <tr><td>7</td><td>Processing parameters</td><td>Every parameter actually used</td></tr>
+          <tr><td>8</td><td>Model information</td><td>Authors, licence, paper, repository, weight file and digest</td></tr>
+          <tr><td>9</td><td>Before / after</td><td>Side-by-side thumbnails</td></tr>
+          <tr><td>10</td><td>Difference analysis</td><td>The map and its statistics</td></tr>
+          <tr><td>11</td><td>Processing history</td><td>Every step, device and duration, with the digest chain</td></tr>
+          <tr><td>12</td><td>Execution environment</td><td>Application version, Python, platform, device</td></tr>
+          <tr><td>13</td><td>Audit trail</td><td>Every recorded action in sequence</td></tr>
+          <tr><td>14</td><td>Limitations and disclaimer</td><td>The standing disclaimer plus anything you added</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      The mandatory disclaimer is printed on the title page <em>and</em> in the footer
+      of every page, so a printed extract cannot lose it. The finished PDF is hashed
+      and registered in the case database as a report record.
+    </p>
+
+    <!-- ============================================ models -->
+    <h2 id="models">Model Manager</h2>
+
+    <p><strong>Tools → Model Manager</strong> (<kbd>Ctrl</kbd>+<kbd>M</kbd>).</p>
+
+    <img src="screenshots/08-model-manager.png" loading="lazy" width="2360" height="1410"
+         alt="The Model Manager listing thirty models with task, kind, status, size and licence">
+
+    <p>
+      Every model is listed with its task, kind, version, status, download size and
+      licence. Selecting one shows its full detail: registry key, authors, licence,
+      paper, repository, the method it implements, its parameters, and each weight
+      file with its expected SHA-256.
+    </p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><span class="yes">Installed</span></td><td>Weights are present and match their expected digest. Ready to run.</td></tr>
+          <tr><td><span class="part">Weights missing</span></td><td>The adapter is implemented; the weight file is not on disk. Press <em>Install</em>.</td></tr>
+          <tr><td><span class="part">Manual install</span></td><td>Upstream publishes no directly downloadable file. Use <em>Install from file…</em> after obtaining it yourself.</td></tr>
+          <tr><td><span class="no">Not integrated</span></td><td>Declared for completeness but not implemented. The detail pane says exactly what is missing. It will never return a substitute result.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="installing-weights">Installing weights</h3>
+    <ol>
+      <li>Select the model and read its licence — <strong>several restrict use to non-commercial research</strong>.</li>
+      <li>Press <strong>Install</strong>. A confirmation shows the source URL, the file size and whether the download can be verified against a published SHA-256.</li>
+      <li>The download runs on a worker thread and can be cancelled. On completion the digest is checked; a mismatch discards the file.</li>
+      <li><strong>Verify</strong> re-hashes an installed file at any time. <strong>Remove weights</strong> deletes it.</li>
+    </ol>
+
+    <div class="callout">
+      <div class="callout__title">Air-gapped or restricted machines</div>
+      <p class="small muted" style="margin:0">
+        <strong>Install from file…</strong> takes a weight file you obtained
+        elsewhere, verifies it against the expected digest where one is published,
+        and copies it into the weights folder. Or copy files into the folder shown by
+        <em>Open weights folder</em> and restart. Nothing is ever downloaded without
+        you asking for it.
+      </p>
+    </div>
+
+    <!-- ============================================ batch -->
+    <h2 id="batch">Batch processing</h2>
+
+    <p>
+      <strong>Tools → Batch Processing</strong> applies one reviewed pipeline to
+      every image in a folder. Choose the input folder, the output folder and the
+      pipeline, and each image is imported, processed and recorded exactly as it
+      would be individually — with its own hashes, provenance sidecar, history and
+      audit entries.
+    </p>
+
+    <p>
+      Batch runs sequentially on a single worker rather than in parallel. GPU
+      inference serialises anyway, so parallelism would only raise peak VRAM and the
+      chance of an out-of-memory failure. Progress is per file, and cancelling stops
+      at the next file boundary, leaving completed work intact and recorded.
+    </p>
+
+    <!-- ============================================ ocr -->
+    <h2 id="ocr">OCR and object detection</h2>
+
+    <p>
+      Both are optional integrations, reached from <strong>Analysis</strong> or the
+      context menu.
+    </p>
+
+    <ul>
+      <li><strong>OCR Region…</strong> reads text from the current image or region. It needs Tesseract installed on the system; set the binary path in Preferences if it is not on <code>PATH</code>.</li>
+      <li><strong>Detect Objects…</strong> runs a detector over the image and lists what it found with confidences. Face detection uses OpenCV YuNet and reports five-point landmarks, so a detected face can be sent straight to face restoration as a region.</li>
+    </ul>
+
+    <div class="callout callout--warn">
+      <div class="callout__title">OCR on an enhanced image reads the enhancement</div>
+      <p class="small muted" style="margin:0">
+        If a generative step invented a character, OCR will read that character
+        confidently. Always run OCR against the original as well as the derivative,
+        and report both. A confidence score describes the recogniser's certainty
+        about the pixels it was given — not whether those pixels reflect the scene.
+      </p>
+    </div>
+
+    <!-- ============================================ safe mode -->
+    <h2 id="safe-mode">Forensic Safe Mode</h2>
+
+    <p>
+      On by default; the status bar shows
+      <strong>🔒 FORENSIC SAFE MODE ENABLED</strong>. While it is on:
+    </p>
+
+    <ul>
+      <li>imported originals are marked read-only on the filesystem;</li>
+      <li>the original is never a valid write target for any operation;</li>
+      <li>deleting evidence and editing the processing history are refused;</li>
+      <li>every state-changing operation writes an audit entry that records the safe-mode state at the time;</li>
+      <li>reports include the complete provenance chain.</li>
+    </ul>
+
+    <p>
+      Turning it off (<strong>Tools → Forensic Safe Mode</strong>) requires confirming
+      an explicit warning, and the change is itself audited — so a report will show
+      that it was disabled, when, and what happened afterwards. There is no reason to
+      disable it during casework.
+    </p>
+
+    <!-- ============================================ preferences -->
+    <h2 id="preferences">Preferences</h2>
+
+    <p><strong>Tools → Preferences</strong>.</p>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Group</th><th>Setting</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="6">Processing</td><td>Compute device</td><td><code>auto</code>, <code>cuda</code> or <code>cpu</code></td></tr>
+          <tr><td>CUDA device index</td><td>Which GPU, on a multi-GPU machine</td></tr>
+          <tr><td>Half precision (FP16)</td><td>Halves VRAM use; recorded in the provenance record</td></tr>
+          <tr><td>Tile size</td><td>Square edge in pixels for tiled inference</td></tr>
+          <tr><td>Tile overlap</td><td>Blended with a raised-cosine window, so no seams</td></tr>
+          <tr><td>Auto-reduce on OOM</td><td>Retry with smaller tiles instead of failing</td></tr>
+          <tr><td rowspan="3">Forensic</td><td>Forensic Safe Mode</td><td>Leave this on</td></tr>
+          <tr><td>Confirm before synthesis</td><td>Prompt before any step that can invent detail</td></tr>
+          <tr><td>Allow model downloads</td><td>Turn off entirely for an air-gapped machine</td></tr>
+          <tr><td rowspan="2">Folders</td><td>Cases folder</td><td>Where new cases are created</td></tr>
+          <tr><td>Model weights</td><td>Where weight files live; can point at shared storage</td></tr>
+          <tr><td rowspan="2">OCR</td><td>Preferred engine</td><td>Which OCR backend to use</td></tr>
+          <tr><td>Tesseract binary</td><td>Needed only when it is not on <code>PATH</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="muted small">
+      Settings live in the per-user configuration folder — on Windows
+      <code>%LOCALAPPDATA%\ForensicVision\config</code>, on Linux
+      <code>~/.config/ForensicVision</code>. Deleting it resets the application to
+      defaults; cases are unaffected.
+    </p>
+
+    <!-- ============================================ shortcuts -->
+    <h2 id="shortcuts">Keyboard shortcuts</h2>
+
+    <p class="muted small">
+      Also available in the application from <strong>Help → Keyboard Shortcuts</strong>.
+    </p>
+
+    <div class="table-scroll">
+      <table class="kbd-table">
+        <thead><tr><th>Keys</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>N</kbd></td><td>New case</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>O</kbd></td><td>Open case</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>O</kbd></td><td>Import evidence</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd></td><td>Open image without a case</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>S</kbd></td><td>Export derivative</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Export derivative as…</td></tr>
+          <tr><td><kbd>A</kbd> / <kbd>Shift</kbd>+<kbd>A</kbd></td><td>Analyse image / analyse ROI</td></tr>
+          <tr><td><kbd>E</kbd> / <kbd>Shift</kbd>+<kbd>E</kbd></td><td>Auto enhance / enhance ROI</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>R</kbd></td><td>Run the staged pipeline</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>D</kbd></td><td>Compare original / enhanced</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>P</kbd></td><td>Generate report</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>M</kbd></td><td>Model manager</td></tr>
+          <tr><td><kbd>F</kbd> / <kbd>R</kbd></td><td>Fit to window / reset view</td></tr>
+          <tr><td><kbd>1</kbd> <kbd>2</kbd> <kbd>4</kbd> <kbd>8</kbd></td><td>Zoom 100% / 200% / 400% / 800%</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>+</kbd> / <kbd>Ctrl</kbd>+<kbd>−</kbd></td><td>Zoom in / out</td></tr>
+          <tr><td>Mouse wheel</td><td>Zoom under the cursor</td></tr>
+          <tr><td>Middle drag, or <kbd>Space</kbd>+drag</td><td>Pan</td></tr>
+          <tr><td><kbd>C</kbd></td><td>Toggle crosshair</td></tr>
+          <tr><td>Right-click on the image</td><td>Context menu — most actions live here</td></tr>
+          <tr><td><kbd>F9</kbd> / <kbd>F11</kbd></td><td>Show or hide the inspector / focus mode</td></tr>
+          <tr><td><kbd>Alt</kbd>+<kbd>1</kbd> … <kbd>Alt</kbd>+<kbd>5</kbd></td><td>Case / Analysis / Restore / History / Log tab</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Tab</kbd></td><td>Cycle inspector tabs</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>1</kbd>…<kbd>4</kbd></td><td>Rectangle / ellipse / polygon / freehand ROI</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Cancel ROI drawing</td></tr>
+          <tr><td><kbd>Ctrl</kbd>+<kbd>Z</kbd> / <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>Z</kbd></td><td>Undo / redo <strong>view</strong> change</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="muted small">
+      Undo and redo affect the view only. Original evidence is never modified, so
+      there is nothing to undo on it.
+    </p>
+
+    <!-- ============================================ cli -->
+    <h2 id="cli">Command line</h2>
+
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Flag</th><th>Effect</th></tr></thead>
+        <tbody>
+          <tr><td><code>--case DIR</code></td><td>Open this case folder on start</td></tr>
+          <tr><td><code>--image FILE</code></td><td>Open this image on start</td></tr>
+          <tr><td><code>--no-case</code></td><td>With <code>--image</code>, inspect the file without creating a case</td></tr>
+          <tr><td><code>--device {auto,cuda,cpu}</code></td><td>Override the configured compute device for this session</td></tr>
+          <tr><td><code>--check</code></td><td>Report the environment and model status, then exit</td></tr>
+          <tr><td><code>--self-test</code></td><td>Run the functional end-to-end self-test, then exit</td></tr>
+          <tr><td><code>--debug</code></td><td>Enable debug-level logging</td></tr>
+          <tr><td><code>--version</code></td><td>Print the version string and exit</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============================================ layout -->
+    <h2 id="layout">Case folder layout</h2>
+
+    <div class="code">
+      <div class="code__head"><span>CASE-0007/</span></div>
+<pre><span class="p">CASE-0007/</span>
+├── <span class="p">case.json</span>            <span class="c"># human-readable manifest</span>
+├── <span class="p">case.db</span>              <span class="c"># SQLite: evidence, derivatives, steps, audit</span>
+├── <span class="p">evidence/original/</span>   <span class="c"># imported originals, read-only in Safe Mode</span>
+├── <span class="p">derivatives/</span>         <span class="c"># every enhanced image + JSON provenance sidecars</span>
+├── <span class="p">analysis/</span>            <span class="c"># stored analysis results</span>
+├── <span class="p">reports/</span>             <span class="c"># generated PDFs</span>
+├── <span class="p">metadata/</span>            <span class="c"># extracted metadata</span>
+└── <span class="p">logs/</span>                <span class="c"># per-case log</span></pre>
+    </div>
+
+    <p>
+      The folder is self-contained: archive or copy it and the case travels with its
+      database, its provenance and its reports. Derivatives form a tree — a
+      derivative of a derivative records its parent — which is what the History tab
+      renders and what lets any result be traced back to the original.
+    </p>
+
+    <!-- ============================================ scripting -->
+    <h2 id="scripting">Scripting the engine</h2>
+
+    <p>
+      The restoration engine has no Qt dependency, so it can be driven from a plain
+      Python script — for automation, experiments or as the basis of another front
+      end.
+    </p>
+
+    <div class="code">
+      <div class="code__head"><span>python</span><button class="copy" type="button">Copy</button></div>
+<pre><span class="k">from</span> analysis <span class="k">import</span> analyze_image
+<span class="k">from</span> core.image_io <span class="k">import</span> load_image
+<span class="k">from</span> restoration <span class="k">import</span> register_all_models
+<span class="k">from</span> restoration.auto_engine <span class="k">import</span> AutoRestorationEngine
+<span class="k">from</span> restoration.pipeline <span class="k">import</span> PipelineRunner
+
+register_all_models()
+image = load_image(<span class="s">"frame.jpg"</span>)
+report = analyze_image(image)
+
+recommendation = AutoRestorationEngine().recommend(report)
+<span class="k">for</span> step <span class="k">in</span> recommendation.pipeline.steps:
+    print(step.display_name, step.parameters, step.info().may_synthesise)
+<span class="c"># FBCNN (colour)      {'override_quality': False, 'quality_factor': 50}  True</span>
+<span class="c"># CLAHE Contrast      {'clip_limit': 2.0, 'tile_grid': 8}                False</span>
+<span class="c"># Real-ESRGAN x4plus  {'scale': 4}                                       True</span>
+
+result = PipelineRunner(device=<span class="s">"auto"</span>).run(image, recommendation.pipeline)
+print(result.may_synthesise)                  <span class="c"># True</span>
+print(result.steps[-1].output_hashes.sha256)  <span class="c"># the derivative's digest</span></pre>
+    </div>
+
+    <p class="muted small">
+      The module layout and the extension points for adding an indicator or a model
+      are described in
+      <a href="https://github.com/sihabsahariar/ForensicVision/blob/main/docs/ARCHITECTURE.md" target="_blank" rel="noopener">ARCHITECTURE.md</a>.
+    </p>
+
+    <!-- ============================================ troubleshooting -->
+    <h2 id="troubleshooting">Troubleshooting</h2>
+
+    <h3 id="ts-torch">“PyTorch not installed” but I installed it</h3>
+    <p>
+      Check that you installed into the same environment you are launching from —
+      <code>python -c "import torch; print(torch.__file__)"</code> from the active
+      virtual environment. If you are running a packaged build, this message can also
+      mean the bundle's PyTorch is broken rather than absent; run
+      <code>--self-test</code>, which fails loudly instead of quietly degrading to
+      CPU-with-classical-only.
+    </p>
+
+    <h3 id="ts-cuda">CUDA is not detected</h3>
+    <p>
+      The default PyTorch wheel is CPU-only. Install a CUDA build from the index URL
+      on <a href="https://pytorch.org/get-started/locally/" target="_blank" rel="noopener">pytorch.org</a>
+      matching your driver, then confirm with
+      <code>python -c "import torch; print(torch.cuda.is_available())"</code>.
+    </p>
+
+    <h3 id="ts-oom">Out of memory during inference</h3>
+    <p>
+      Lower the tile size in Preferences, enable FP16, close other GPU applications,
+      or set the device to <code>cpu</code> for that run. With auto-reduce enabled the
+      application retries with a smaller tile before failing, and says so in the log.
+    </p>
+
+    <h3 id="ts-qt">The application will not start on Linux</h3>
+    <p>
+      Almost always a missing Qt platform library. Run with
+      <code>QT_DEBUG_PLUGINS=1 python main.py</code> to see which one, and install the
+      packages listed under <a href="#installation">Installation</a>. Over SSH you
+      need X forwarding or a local session; <code>--check</code> and
+      <code>--self-test</code> work headless.
+    </p>
+
+    <h3 id="ts-readonly">I cannot delete a case folder</h3>
+    <p>
+      Safe Mode marks imported originals read-only, and Windows will refuse to remove
+      them. Clear the read-only attribute first, or delete the case from within the
+      application.
+    </p>
+
+    <h3 id="ts-digest">A downloaded weight file fails verification</h3>
+    <p>
+      The download is discarded and nothing is installed — that is the intended
+      behaviour. Retry; if it fails again, download the file manually from the
+      repository shown in the model detail and use <em>Install from file…</em>.
+    </p>
+
+    <h3 id="ts-logs">Where are the logs?</h3>
+    <p>
+      The <strong>Log</strong> tab shows the current session live. On disk, each case
+      writes to its own <code>logs/</code> folder, and the application log is in the
+      per-user configuration folder. <code>--debug</code> raises the level.
+    </p>
+
+    <!-- ============================================ faq -->
+    <h2 id="faq">Frequently asked questions</h2>
+
+    <h3 id="faq-court">Can I use ForensicVision's output in court?</h3>
+    <p>
+      That is a question for your jurisdiction, your instructing authority and your
+      own expertise — not for this documentation. What the software can tell you is
+      exactly what it did: every operation, parameter, model, licence and digest is
+      recorded and printed. <strong>ForensicVision has no history of court acceptance
+      and makes no claim of admissibility.</strong> Where an established, validated
+      commercial tool is available and appropriate, use it.
+    </p>
+
+    <h3 id="faq-plate">Can it read an unreadable licence plate?</h3>
+    <p>
+      No tool can. If the characters were never sampled, they are not in the file and
+      no amount of processing will recover them — a model asked for a plate will
+      produce a plausible plate, which is not the same thing. What enhancement can
+      legitimately do is make marginally-sampled detail easier to see. Compare
+      against the Lanczos baseline: if the neural result shows characters the
+      deterministic upscale does not even hint at, treat them as invented.
+    </p>
+
+    <h3 id="faq-original">Does it ever modify my original file?</h3>
+    <p>
+      No. Import copies the file; the copy is what is hashed and stored read-only.
+      The file you selected is never written to, moved or renamed.
+    </p>
+
+    <h3 id="faq-offline">Does it phone home?</h3>
+    <p>
+      No. There is no telemetry, no account, no activation and no licence server. The
+      only network request the application ever makes is a model-weight download you
+      start yourself, to a URL it shows you first — and it can be disabled entirely
+      in Preferences.
+    </p>
+
+    <h3 id="faq-classical">Why keep classical operators when neural models exist?</h3>
+    <p>
+      Because they cannot invent detail, and because they sometimes simply win. On
+      motion blur Wiener deconvolution beats Restormer by 4 dB in the bundled
+      benchmark; on defocus blur Richardson–Lucy beats Wiener by 3 dB. They also give
+      you a non-generative baseline to compare any neural result against.
+    </p>
+
+    <h3 id="faq-reproduce">Are results reproducible?</h3>
+    <p>
+      Classical operators are deterministic and reproduce exactly. Neural inference
+      reproduces on the same device, precision and library versions — all of which
+      are recorded — but GPU floating-point accumulation order means a different card
+      or a different PyTorch build can differ in the last decimal places. The
+      provenance record captures everything needed to attempt an exact reproduction.
+    </p>
+
+    <h3 id="faq-contribute">How do I contribute?</h3>
+    <p>
+      Issues and pull requests are welcome at
+      <a href="https://github.com/sihabsahariar/ForensicVision" target="_blank" rel="noopener">github.com/sihabsahariar/ForensicVision</a>.
+      The conventions that matter most: never fake a result, every operator declares
+      whether it can invent detail, every estimator names its method, nothing
+      long-running touches the GUI thread, and tests accompany behaviour changes.
+    </p>
+
+    <!-- ============================================ limitations -->
+    <h2 id="limits">Limitations</h2>
+
+    <p>A summary. The authoritative list is
+      <a href="https://github.com/sihabsahariar/ForensicVision/blob/main/docs/LIMITATIONS.md" target="_blank" rel="noopener">LIMITATIONS.md</a>,
+      and it is the most important file in the repository.</p>
+
+    <div class="grid grid--2">
+      <div class="card">
+        <h3>The fundamental limit</h3>
+        <p>Information that was never captured cannot be recovered. Enhancement makes existing detail easier to perceive; it does not add measurements that were not taken.</p>
+      </div>
+      <div class="card">
+        <h3>Analysis scores are heuristics</h3>
+        <p>Not the output of a validated classifier. Heavy blur and heavy upscaling produce similar spectra and cannot always be separated.</p>
+      </div>
+      <div class="card">
+        <h3>Face restoration invents faces</h3>
+        <p>Demonstrated, documented and fenced off. Never usable for identification.</p>
+      </div>
+      <div class="card">
+        <h3>ELA is not an authenticity verdict</h3>
+        <p>ForensicVision does not authenticate images or detect manipulation.</p>
+      </div>
+      <div class="card">
+        <h3>No video</h3>
+        <p>The engine is designed to be reusable for it; the application does not process video today.</p>
+      </div>
+      <div class="card">
+        <h3>No measurement or recognition</h3>
+        <p>No photogrammetry, no 3D reconstruction, and no facial recognition, matching or identification of any kind.</p>
+      </div>
+    </div>
+
+    <div class="disclaimer" style="margin-top:34px">
+      Algorithmic image enhancement modifies image data. AI-based restoration may
+      infer or synthesize structures that are not directly represented in the source
+      image. Enhanced imagery is a derivative representation and should not
+      automatically be interpreted as an exact recovery of information absent from
+      the original evidence.
+    </div>
+
+    <div class="btn-row" style="margin-top:30px">
+      <a class="btn btn--primary" href="https://github.com/sihabsahariar/ForensicVision" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        Source on GitHub
+      </a>
+      <a class="btn btn--ghost" href="https://github.com/sihabsahariar/ForensicVision/issues" target="_blank" rel="noopener">Report an issue</a>
+      <a class="btn btn--ghost" href="index.html">Back to the overview</a>
+    </div>
+
+  </main>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-note" style="border-top:0;padding-top:0">
+      <p>
+        © <span data-year>2026</span> Sihab Sahariar ·
+        <a href="https://github.com/sihabsahariar" target="_blank" rel="noopener">github.com/sihabsahariar</a> ·
+        <a href="https://www.linkedin.com/in/sihabsahariar/" target="_blank" rel="noopener">LinkedIn</a> ·
+        <a href="mailto:sihabsahariarcse@gmail.com">sihabsahariarcse@gmail.com</a>
+      </p>
+      <p>
+        Released under the Apache License 2.0. The GUI links PyQt5, which is GPL-3.0
+        unless you hold a Riverbank commercial licence. Integrated model weights carry
+        their own licences, several of which restrict commercial use.
+      </p>
+    </div>
+  </div>
+</footer>
+
+<button class="icon-btn to-top" type="button" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20V5M6 11l6-6 6 6"/></svg>
+</button>
+
+<script src="assets/app.js"></script>
+</body>
+</html>

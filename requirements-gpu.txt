@@ -1,0 +1,37 @@
+# ForensicVision - NVIDIA GPU dependencies
+#
+# Install the CUDA build of PyTorch from PyTorch's own index, then the rest of
+# the base requirements:
+#
+#     python -m pip install -r requirements-gpu.txt
+#     python -m pip install -r requirements.txt --no-deps
+#
+# Or, more simply, install the base file first and then overwrite torch:
+#
+#     python -m pip install -r requirements.txt
+#     python -m pip install -r requirements-gpu.txt --force-reinstall
+#
+# ---------------------------------------------------------------------------
+# CUDA / PyTorch compatibility
+# ---------------------------------------------------------------------------
+# PyTorch ships its own CUDA runtime, so a matching CUDA *toolkit* installation
+# is NOT required - only an NVIDIA driver new enough for the chosen build.
+#
+#   Wheel index   CUDA runtime   Minimum NVIDIA driver (Windows / Linux)
+#   ------------  -------------  ---------------------------------------
+#   cu118         11.8           452.39      / 450.80.02
+#   cu121         12.1           527.41      / 525.60.13
+#   cu124         12.4           550.54      / 550.54.14
+#   cu126         12.6           560.76      / 560.28.03
+#
+# Check your driver with `nvidia-smi`. The "CUDA Version" it reports is the
+# highest runtime the driver supports, not what is installed.
+#
+# Pick the index URL matching a runtime your driver supports. cu126 is the
+# reference configuration for this project.
+# ---------------------------------------------------------------------------
+
+--extra-index-url https://download.pytorch.org/whl/cu126
+
+torch>=2.1,<3
+torchvision>=0.16,<1

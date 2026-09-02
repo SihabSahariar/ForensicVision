@@ -1,0 +1,37 @@
+# ForensicVision - base dependencies (CPU)
+#
+# This file installs a CPU-only PyTorch. For NVIDIA GPU acceleration install
+# requirements-gpu.txt INSTEAD of the torch lines below - see docs/GPU_SETUP.md.
+#
+#     python -m pip install -r requirements.txt
+#
+# Python 3.10 - 3.12 are supported. 3.11 is the reference version.
+
+# --- GUI -------------------------------------------------------------------
+PyQt5>=5.15.9,<6
+PyQt5-sip>=12.11
+
+# --- Imaging ---------------------------------------------------------------
+numpy>=1.24,<2.3
+opencv-python>=4.8,<5
+Pillow>=10.0
+scikit-image>=0.21
+scipy>=1.10
+
+# --- Machine learning (CPU build) ------------------------------------------
+# Replace with requirements-gpu.txt for CUDA. Neural models are optional: the
+# application starts and every classical operator works without these.
+torch>=2.1,<3
+torchvision>=0.16,<1
+
+# --- Persistence -----------------------------------------------------------
+SQLAlchemy>=2.0,<3
+
+# --- Metadata --------------------------------------------------------------
+ExifRead>=3.0
+
+# --- Reporting -------------------------------------------------------------
+reportlab>=4.0
+
+# --- System information ----------------------------------------------------
+psutil>=5.9

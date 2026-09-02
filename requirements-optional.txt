@@ -1,0 +1,30 @@
+# ForensicVision - optional features
+#
+# Everything here is genuinely optional. The application starts, analyses and
+# restores images without any of it; the corresponding UI reports the missing
+# dependency rather than failing or producing a substitute result.
+#
+#     python -m pip install -r requirements-optional.txt
+
+# --- OCR (Analysis > OCR Region) -------------------------------------------
+# Tesseract also needs the native binary on PATH:
+#   Windows: https://github.com/UB-Mannheim/tesseract/wiki
+#   Linux:   sudo apt install tesseract-ocr
+pytesseract>=0.3.10
+
+# PaddleOCR is an alternative engine; it pulls in PaddlePaddle, which is large.
+# Uncomment both lines to use it.
+# paddleocr>=2.7
+# paddlepaddle>=2.5
+
+# --- Object detection (Analysis > Detect Objects) --------------------------
+# Downloads a YOLO checkpoint on first use.
+ultralytics>=8.0
+
+# --- Development and testing ------------------------------------------------
+pytest>=7.4
+pytest-qt>=4.2
+pypdf>=4.0
+
+# --- Packaging --------------------------------------------------------------
+pyinstaller>=6.0
