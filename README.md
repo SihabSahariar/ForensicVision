@@ -264,7 +264,7 @@ let you lose track of the difference.
 ## Quick start
 
 ```bash
-git clone https://github.com/sihabsahariar/ForensicVision.git
+git clone https://github.com/SihabSahariar/ForensicVision.git
 cd ForensicVision
 python -m pip install -r requirements.txt
 
@@ -658,7 +658,7 @@ your intended use before deploying.
 
 **Sihab Sahariar**
 
-[![GitHub](https://img.shields.io/badge/GitHub-sihabsahariar-181717?logo=github&logoColor=white)](https://github.com/sihabsahariar)
+[![GitHub](https://img.shields.io/badge/GitHub-sihabsahariar-181717?logo=github&logoColor=white)](https://github.com/SihabSahariar)
 [![Email](https://img.shields.io/badge/email-sihabsahariarcse%40gmail.com-D14836?logo=gmail&logoColor=white)](mailto:sihabsahariarcse@gmail.com)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-sihabsahariar-0A66C2?logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sihabsahariar/)
 
