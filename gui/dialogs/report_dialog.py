@@ -198,7 +198,17 @@ class ReportDialog(QDialog):
 
         if self._derivative is not None:
             context["pipeline"] = self._derivative.pipeline
-            context["may_synthesise"] = self._derivative.model_kind == "neural"
+            # Not the same question as "was a network involved": Zero-DCE is
+            # neural and cannot synthesise. Prefer what the run actually
+            # recorded, and fall back to the pipeline's own models.
+            provenance = self._derivative.provenance or {}
+            if "may_synthesise" in provenance:
+                context["may_synthesise"] = bool(provenance["may_synthesise"])
+            else:
+                context["may_synthesise"] = any(
+                    entry.get("may_synthesise")
+                    for entry in self._collect_models(self._derivative.pipeline)
+                )
             context["models"] = self._collect_models(self._derivative.pipeline)
 
         context["history"] = self._case.repository.list_steps(

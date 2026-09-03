@@ -36,7 +36,7 @@ from PyQt5.QtWidgets import (
 
 from app.constants import MODEL_STATUS_LABELS, ModelKind, ModelStatus
 from app.paths import weights_dir
-from restoration.base import ModelInfo, WeightSpec
+from restoration.base import ModelInfo, WeightSpec, format_size
 from restoration.registry import ModelRegistry
 from restoration.weights import installed_size, probe_url, remove_weight, verify_weight
 from gui.theme import Palette
@@ -197,7 +197,7 @@ class ModelManagerDialog(QDialog):
             size = "-"
             if info.weights:
                 total = sum(w.size_bytes for w in info.weights)
-                size = f"{total / (1024 * 1024):.0f} MiB" if total else "unknown"
+                size = format_size(total)
 
             values = (
                 info.display_name,
@@ -236,7 +236,7 @@ class ModelManagerDialog(QDialog):
         total_bytes = installed_size()
         self._footer_label.setText(
             f"{installed} of {len(self._rows)} models ready  |  "
-            f"weights folder: {weights_dir()}  ({total_bytes / (1024 * 1024):.0f} MiB)"
+            f"weights folder: {weights_dir()}  ({format_size(total_bytes)})"
         )
 
     # ---------------------------------------------------------------- helpers

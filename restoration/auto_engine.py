@@ -39,6 +39,12 @@ from restoration.base import ModelInfo
 from restoration.pipeline import Pipeline, PipelineStep
 from restoration.registry import ModelRegistry
 
+#: Pseudo-task key under which :attr:`AutoRestorationEngine.PREFERENCES` holds
+#: the underexposure-specific ordering. It is not a :class:`TaskType` and never
+#: reaches the registry - :meth:`AutoRestorationEngine._preferences_for` swaps
+#: it in for ``exposure`` when the frame is dark rather than blown out.
+_EXPOSURE_LOW_LIGHT = "exposure:low_light"
+
 logger = logging.getLogger(__name__)
 
 __all__ = ["AutoRestorationEngine", "Recommendation", "RecommendedStep"]
@@ -150,7 +156,10 @@ class AutoRestorationEngine:
             "realesrgan_anime6b", "lanczos",
         ),
         TaskType.DEHAZE.value: ("dcp_dehaze",),
+        # Exposure is direction-dependent: see _preferences_for. Zero-DCE is a
+        # low-light model and is only offered when the frame is underexposed.
         TaskType.EXPOSURE.value: ("exposure",),
+        _EXPOSURE_LOW_LIGHT: ("zerodce_pp", "zerodce", "exposure"),
         TaskType.CONTRAST.value: ("clahe",),
         TaskType.FACE_RESTORATION.value: ("codeformer", "gfpgan"),
     }
@@ -200,9 +209,9 @@ class AutoRestorationEngine:
                 continue
             model_name, reason, trigger_key, score, alternatives = proposal
 
-            selected = self._select_model(task)
+            selected = self._select_model(task, report)
             if selected is None:
-                available_reason = self._unavailable_reason(task)
+                available_reason = self._unavailable_reason(task, report)
                 recommendation.skipped.append(
                     (task.replace("_", " ").title(), available_reason)
                 )
@@ -305,12 +314,16 @@ class AutoRestorationEngine:
             which = "Under" if under >= over else "Over"
             key = (DegradationKey.UNDEREXPOSURE.value if under >= over
                    else DegradationKey.OVEREXPOSURE.value)
+            alternatives = (
+                ["Exposure Correction for a fixed, hand-set gamma curve"]
+                if under >= over else []
+            )
             return (
                 task,
                 f"{which}exposure indicator is {int(score * 100)}/100. Tone "
                 "correction is a monotonic per-pixel mapping; it cannot restore "
                 "samples that were clipped at capture.",
-                key, score, [],
+                key, score, alternatives,
             )
 
         if task == TaskType.CONTRAST.value:
@@ -379,9 +392,29 @@ class AutoRestorationEngine:
                 return candidate
         return min(2, max_scale)
 
-    def _candidates(self, task: str) -> List[ModelInfo]:
+    def _preferences_for(
+        self, task: str, report: Optional[AnalysisReport]
+    ) -> Sequence[str]:
+        """Return the preference list for ``task``, given the analysis.
+
+        Exposure is the one task whose best operator depends on the *direction*
+        of the problem. Zero-DCE and Zero-DCE++ are trained exclusively on
+        low-light photography and only brighten usefully, so they are offered
+        for underexposure and withheld for overexposure, where the classical
+        tone mapping is both the better and the more defensible choice.
+        """
+        if task == TaskType.EXPOSURE.value and report is not None:
+            under = report.score(DegradationKey.UNDEREXPOSURE.value)
+            over = report.score(DegradationKey.OVEREXPOSURE.value)
+            if under >= max(over, self._threshold):
+                return self.PREFERENCES[_EXPOSURE_LOW_LIGHT]
+        return self.PREFERENCES.get(task, ())
+
+    def _candidates(
+        self, task: str, report: Optional[AnalysisReport] = None
+    ) -> List[ModelInfo]:
         """Return registered models for ``task`` in preference order."""
-        preferred = list(self.PREFERENCES.get(task, ()))
+        preferred = list(self._preferences_for(task, report))
         infos = {info.name: info for info in ModelRegistry.by_task(task)}
         ordered = [infos[name] for name in preferred if name in infos]
         ordered.extend(info for name, info in infos.items() if name not in preferred)
@@ -389,17 +422,21 @@ class AutoRestorationEngine:
             ordered.sort(key=lambda i: 0 if i.kind == ModelKind.CLASSICAL.value else 1)
         return ordered
 
-    def _select_model(self, task: str) -> Optional[ModelInfo]:
+    def _select_model(
+        self, task: str, report: Optional[AnalysisReport] = None
+    ) -> Optional[ModelInfo]:
         """Return the first available model for ``task``."""
-        for info in self._candidates(task):
+        for info in self._candidates(task, report):
             model = ModelRegistry.try_get(info.name)
             if model is not None and model.availability().ok:
                 return info
         return None
 
-    def _unavailable_reason(self, task: str) -> str:
+    def _unavailable_reason(
+        self, task: str, report: Optional[AnalysisReport] = None
+    ) -> str:
         """Explain why no model could be selected for ``task``."""
-        candidates = self._candidates(task)
+        candidates = self._candidates(task, report)
         if not candidates:
             return f"No model is registered for this task."
         reasons = []
@@ -445,7 +482,9 @@ class AutoRestorationEngine:
             params["strength"] = round(float(min(25.0, max(2.0, sigma * 0.9))), 1)
             params["chroma_strength"] = round(float(min(25.0, max(2.0, sigma * 1.1))), 1)
 
-        elif task == TaskType.EXPOSURE.value:
+        elif task == TaskType.EXPOSURE.value and info.parameter("gamma") is not None:
+            # Curve-estimation models declare no gamma; writing one anyway would
+            # put a parameter that had no effect into the provenance record.
             under = report.score(DegradationKey.UNDEREXPOSURE.value)
             over = report.score(DegradationKey.OVEREXPOSURE.value)
             if under >= over:
@@ -484,6 +523,18 @@ class AutoRestorationEngine:
                     f"{clipped * 100:.1f}% of pixels are clipped at the white "
                     "point. No operation can recover those samples; any detail "
                     "appearing there in the output is synthesised."
+                )
+
+        low_light = {"zerodce", "zerodce_pp"}
+        if any(step.model_name in low_light for step in pipeline.enabled_steps):
+            noise = report.score(DegradationKey.NOISE.value)
+            if noise >= self._threshold:
+                recommendation.warnings.append(
+                    "A low-light curve model is proposed on a frame that also "
+                    "reads as noisy. Brightening the shadows brightens their "
+                    "noise with them - measured at roughly five times the input "
+                    "sigma in deep shadow - so denoise first and compare both "
+                    "orderings before relying on shadow detail."
                 )
 
         under = report.get(DegradationKey.UNDEREXPOSURE.value)

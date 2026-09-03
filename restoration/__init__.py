@@ -49,6 +49,7 @@ def register_all_models(replace: bool = False) -> int:
         ("dncnn", "restoration.dncnn", "register_dncnn"),
         ("fbcnn", "restoration.fbcnn", "register_fbcnn"),
         ("swinir", "restoration.swinir", "register_swinir"),
+        ("zerodce", "restoration.zerodce", "register_zerodce"),
         ("codeformer", "restoration.codeformer", "register_codeformer"),
         ("lama", "restoration.lama", "register_lama"),
     )

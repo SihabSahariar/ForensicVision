@@ -50,6 +50,8 @@ unmaintained and fail against torchvision >= 0.17.
 | CodeFormer | Face restoration | 94.1 M | 359 MiB, direct | **Non-commercial** |
 | YuNet (face detector) | Face alignment | 0.09 M | 227 KiB, direct | MIT |
 | NAFNet deblur / denoise | Deblur / denoise | 17-68 M | **manual** | MIT code, NC weights |
+| Zero-DCE | Exposure (low light) | 0.079 M | 313 KiB, direct | **CC BY-NC 4.0** |
+| Zero-DCE++ | Exposure (low light) | 0.011 M | 51 KiB, direct | **CC BY-NC 4.0** |
 
 **Every neural model can synthesise detail.** They are all marked
 `may synthesise` and the application warns before running one.
@@ -67,10 +69,48 @@ Each architecture was loaded against the real upstream checkpoint:
 | DnCNN blind | 40 | 0 | 0 | 0.67 M ✓ |
 | DnCNN sigma-25 | 34 | 0 | 0 | 0.56 M ✓ |
 | CodeFormer | 515 | 0 | 0 | 94.11 M ✓ |
+| Zero-DCE | 14 | 0 | 0 | 0.079 M ✓ |
+| Zero-DCE++ | 28 | 0 | 0 | 0.011 M ✓ |
 
 Weights load with `strict` key checking. A mismatch raises rather than
 silently producing a partially-initialised network, which would output
 plausible-looking noise - the worst possible failure mode here.
+
+Zero-DCE++ is additionally pinned against a transcription of the published
+forward pass at every supported curve resolution, because this implementation
+resizes by explicit target size where upstream crops the input to a multiple of
+the scale factor. On a divisible input the two agree bit for bit; on any other
+input this one keeps the full frame instead of discarding evidence at the right
+and bottom edges.
+
+### Neural is not the same question as synthesising
+
+`kind` and `may_synthesise` are independent axes, and Zero-DCE is where they
+come apart. Both Zero-DCE variants are `neural` - they are trained networks with
+downloaded weights - and both are `may_synthesise=False`.
+
+The reason is structural rather than a judgement call. These networks do not
+output an image. They output the coefficients of a tone curve, which is then
+applied eight times:
+
+```
+LE(x; r) = x + r * x * (x - 1),    r = tanh(...) in [-1, 1]
+```
+
+Its derivative `1 + r(2x - 1)` has minimum 0 over `x in [0,1], r in [-1,1]`, so
+the curve is monotonically non-decreasing, and so is any composition of it. Each
+output pixel is therefore a monotone function of *that pixel's own input value*.
+The network chooses which monotone function; it cannot paint an edge, a
+character or a facial feature that the input does not contain.
+`tests/test_zerodce.py` asserts this both symbolically and against the published
+weights, and the declaration is only valid while those tests pass.
+
+DnCNN is declared the same way for a different reason: it is discriminative,
+predicting and subtracting a noise residual with no learned image prior to draw
+new structure from.
+
+What Zero-DCE *can* do is covered in
+[LIMITATIONS.md](LIMITATIONS.md#13-low-light-curve-models).
 
 ---
 
@@ -95,6 +135,16 @@ python scripts/download_models.py --install realesrgan_x4plus fbcnn_color
 python scripts/download_models.py --install-task super_resolution
 python scripts/download_models.py --verify
 ```
+
+Zero-DCE's weights live in the upstream Git repository rather than in a
+release, so the declared URL is a `raw.githubusercontent.com` path pinned to the
+default branch. Both files verify against a published SHA-256 recorded in this
+repository:
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `zerodce_epoch99.pth` | 320,017 | `a4395acb874f3203...f74c3612` |
+| `zerodce_pp_epoch99.pth` | 52,395 | `ca8855b90df9a80f...067f3b84` |
 
 ### Manually (air-gapped, or NAFNet)
 

@@ -244,7 +244,7 @@ def persist_restoration(
             if last_step is not None and last_step.model_info is not None
             else ""
         ),
-        model_kind="neural" if result.may_synthesise else "classical",
+        model_kind=result.model_kind,
         parameters={
             f"step_{i + 1}_{s.step.model_name}": s.step.parameters
             for i, s in enumerate(result.steps)
@@ -280,7 +280,7 @@ def persist_restoration(
         operation=operation_label(pipeline),
         model_name=model_chain,
         model_version="",
-        model_kind="neural" if result.may_synthesise else "classical",
+        model_kind=result.model_kind,
         parameters={
             f"step_{i + 1}": s.step.to_dict() for i, s in enumerate(result.steps)
         },

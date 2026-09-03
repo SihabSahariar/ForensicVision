@@ -8,7 +8,7 @@
 [![Python](https://img.shields.io/badge/python-3.11%2B-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
 [![PyQt5](https://img.shields.io/badge/GUI-PyQt5-41CD52.svg?logo=qt&logoColor=white)](https://riverbankcomputing.com/software/pyqt/)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey.svg)
-[![Tests](https://img.shields.io/badge/tests-256%20passing-brightgreen.svg)](#testing)
+[![Tests](https://img.shields.io/badge/tests-291%20passing-brightgreen.svg)](#testing)
 [![Offline](https://img.shields.io/badge/offline--first-no%20telemetry-success.svg)](#privacy-and-offline-operation)
 [![CUDA](https://img.shields.io/badge/CUDA-optional-76B900.svg?logo=nvidia&logoColor=white)](docs/GPU_SETUP.md)
 
@@ -66,7 +66,7 @@ ForensicVision is built around keeping that distinction visible at every step.
 |  | Classical | Neural |
 |---|---|---|
 | What it is | Deterministic signal processing | Trained networks |
-| Can it invent detail? | **No** — every output sample derives from measured input samples | **Yes** — detail comes from the training distribution |
+| Can it invent detail? | **Never** — every output sample derives from measured input samples | **Usually** — but each model declares it individually; see below |
 | Needs a download? | No | Yes, and only when you explicitly approve it |
 | Marked in the UI | `Classical (deterministic DSP)` | `Neural (learned prior)` + warning |
 | In reports | Listed as deterministic | Flagged **`may synthesise`** |
@@ -75,6 +75,18 @@ The distinction is declared once, in each model's metadata, and surfaces everywh
 it matters: the restoration panel, the pipeline review dialog, the confirmation
 prompt, the case tree colouring, the provenance sidecar, the database row and the
 PDF report. All ten classical operators work immediately after `pip install`.
+
+**Kind and synthesis are two axes, not one.** Four of the twenty-two neural
+models are declared incapable of synthesising, and the reason is structural
+rather than a judgement call. Zero-DCE outputs the coefficients of a tone curve
+rather than pixels, and that curve is provably monotonic, so each output pixel is
+a monotone function of *that pixel's own input value* — no learned prior can
+paint an edge, a character or a face into it. DnCNN is discriminative: it
+predicts and subtracts a noise residual with no image prior to draw new structure
+from. A report can therefore read `neural` and `may synthesise: no` on the same
+line, and both are true. Collapsing the axes would make the warning meaningless
+exactly where it matters — you could no longer tell CodeFormer, which invents
+faces, from a tone curve.
 
 ### Nothing is faked
 
@@ -150,7 +162,7 @@ shortcuts can never drift apart.
 
 ### Model Manager — licence, size, digest and source, before anything downloads
 
-<img src="docs/screenshots/08-model-manager.png" alt="Model Manager listing 30 models with licences and install status" width="100%">
+<img src="docs/screenshots/08-model-manager.png" alt="Model Manager listing every model with its licence and install status" width="100%">
 
 ### Forensic visualisations
 
@@ -322,7 +334,7 @@ heuristic: encode quality is recovered to within a point (95 → 95.4, 70 → 70
 
 ## Restoration models
 
-Thirty operators: **10 classical**, always available, and **20 neural adapters**.
+Thirty-two operators: **10 classical**, always available, and **22 neural adapters**.
 The neural architectures are implemented natively in PyTorch with
 **checkpoint-compatible layer naming**, so official upstream weights load
 unmodified — with no dependency on the unmaintained `basicsr` / `realesrgan`
@@ -339,6 +351,7 @@ packages, which break against modern torchvision.
 | DnCNN (blind, sigma-25) | Denoise | Direct download | 40 keys, **0 / 0**, 0.67 M params |
 | CodeFormer + YuNet | Face restoration | Direct download | 515 keys, **0 / 0**, 94.11 M params |
 | NAFNet (deblur, denoise) | Deblur / denoise | Manual install | Config inferred from checkpoint; **never verified upstream** |
+| Zero-DCE · Zero-DCE++ | Low-light exposure | Direct download | 14 and 28 keys, **0 / 0**, 0.079 M and 0.011 M params |
 | GFPGAN | Face restoration | **Not integrated** | Blocker documented in-app |
 | LaMa | Inpainting | **Not integrated** | Blocker documented in-app |
 
@@ -355,11 +368,21 @@ On the bundled synthetic evidence, classical baseline vs. neural:
 | JPEG q18 | Deblocking +0.1 dB, −15% blockiness | FBCNN **+3.5 dB, −73% blockiness** |
 | Motion deblur | Wiener **+6.6 dB** | Restormer +2.5 dB |
 | Defocus deblur | Richardson–Lucy **+1.9 dB** | Wiener **−1.2 dB** |
+| Low light (clean) | Gamma 0.35 **+10.2 dB** | Zero-DCE++ **+12.7 dB** |
+| Low light (with sensor noise) | Gamma 0.35 **+9.5 dB** | Zero-DCE++ **+9.6 dB** |
 
-That last row is why both classes are kept. Wiener deconvolution scores *negative*
-on a pillbox defocus kernel because the transfer function has genuine zeros — the
-tool documents this in the operator's own description rather than hiding the
-result.
+Gains are against the untouched degraded frame. The defocus row is why both
+classes are kept: Wiener deconvolution scores *negative* on a pillbox kernel
+because the transfer function has genuine zeros, and the tool documents that in
+the operator's own description rather than hiding it.
+
+The two low-light rows are the same lesson from the other direction. On a clean
+dark frame Zero-DCE++ beats the best hand-set gamma curve by 2.4 dB. Add sensor
+noise — which is what an actual low-light frame has — and the advantage
+collapses to 0.03 dB, because brightening the shadows brightens their noise with
+them at roughly five times the input sigma. Plain Zero-DCE *loses* to the
+classical curve on that input. All four numbers are in
+[docs/LIMITATIONS.md §13](docs/LIMITATIONS.md).
 
 ---
 
@@ -507,13 +530,14 @@ on it.
 ## Testing
 
 ```bash
-python -m pytest tests/ -q          # 256 tests, ~86 s
+python -m pytest tests/ -q          # 291 tests, ~42 s
 python main.py --self-test          # functional end-to-end check, 13 stages
 ```
 
-256 tests covering hashing, metadata, image I/O, case management, the database, all
+291 tests covering hashing, metadata, image I/O, case management, the database, all
 nine analyzers, the model registry, tiling, pipelines, the auto engine, face
-detection and alignment, CodeFormer restoration, provenance, safe mode, the GUI,
+detection and alignment, CodeFormer restoration, the Zero-DCE curve properties,
+provenance, safe mode, the GUI,
 and a full end-to-end integration test that runs import → hash → analyse →
 recommend → restore → derivative → hash → difference → history → PDF, then reads
 the disclaimer back out of the rendered PDF.

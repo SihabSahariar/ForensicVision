@@ -337,6 +337,25 @@ class PipelineResult:
             s.model_info.may_synthesise for s in self.steps if s.model_info is not None
         )
 
+    @property
+    def model_kind(self) -> str:
+        """``"neural"`` if any executed step used learned weights.
+
+        Deliberately separate from :attr:`may_synthesise`. The two axes are
+        independent: Zero-DCE is a trained network that outputs tone-curve
+        coefficients rather than pixels, so it is neural *and* incapable of
+        synthesising structure. Recording one as a proxy for the other would put
+        a false statement into the derivative record.
+        """
+        from app.constants import ModelKind  # local import avoids a cycle
+
+        neural = any(
+            s.model_info.kind == ModelKind.NEURAL.value
+            for s in self.steps
+            if s.model_info is not None
+        )
+        return ModelKind.NEURAL.value if neural else ModelKind.CLASSICAL.value
+
     def to_dict(self) -> Dict[str, Any]:
         """Return a JSON-serialisable representation."""
         return {

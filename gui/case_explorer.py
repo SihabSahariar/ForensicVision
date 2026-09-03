@@ -167,8 +167,14 @@ class CaseExplorer(QWidget):
                         f"{Path(derivative.path).name}\n"
                         f"Pipeline: {derivative.model_name}\n"
                         f"SHA-256: {derivative.sha256}\n\n"
-                        "This derivative was produced with a learned model and "
-                        "may contain synthesised detail.",
+                        "This derivative was produced with a learned model.\n"
+                        + (
+                            "Detail in it may be synthesised rather than "
+                            "recovered."
+                            if (derivative.provenance or {}).get("may_synthesise")
+                            else "No step in it is capable of synthesising "
+                            "structure."
+                        ),
                     )
                 else:
                     child.setToolTip(

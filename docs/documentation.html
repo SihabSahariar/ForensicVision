@@ -283,7 +283,7 @@ python -c "import torch; print(torch.cuda.is_available(), torch.cuda.get_device_
     <p>
       On first launch ForensicVision creates a configuration folder and an empty
       cases folder, and opens with no case loaded. Nothing is downloaded. The status
-      bar reads <strong>Models: N/30 ready</strong> — the classical operators are
+      bar reads <strong>Models: N/32 ready</strong> — the classical operators are
       always ready; the rest become ready once you install their weights.
     </p>
 
@@ -403,7 +403,7 @@ python main.py --image samples/sample_cctv.jpg --no-case  <span class="c"># open
           <tr><td>Noise</td><td>Immerkaer fast variance and Haar-MAD sigma, luminance and chroma separately</td><td>Non-local means, or DnCNN / Restormer</td></tr>
           <tr><td>JPEG artefacts</td><td>Phase-selective 8×8 block discontinuity, near-edge ringing, and the container's own quantisation tables</td><td>Deblocking, or FBCNN</td></tr>
           <tr><td>Low resolution</td><td>Absolute size, plus an outer/mid spectral annulus ratio that detects prior upscaling</td><td>Lanczos for a baseline, then Real-ESRGAN or SwinIR</td></tr>
-          <tr><td>Underexposure</td><td>Median luminance and shadow clipping fraction</td><td>Exposure correction, then CLAHE</td></tr>
+          <tr><td>Underexposure</td><td>Median luminance and shadow clipping fraction</td><td>Zero-DCE++ low-light curves, or a hand-set gamma; then CLAHE</td></tr>
           <tr><td>Overexposure</td><td>Highlight clipping fraction per channel</td><td>Exposure correction — clipped detail is gone, not recoverable</td></tr>
           <tr><td>Low contrast</td><td>Percentile dynamic range, RMS contrast, histogram entropy</td><td>CLAHE</td></tr>
           <tr><td>Haze</td><td>Dark-channel lower quartile, saturation, relative local contrast, transmission uniformity</td><td>Dark-channel-prior dehaze</td></tr>
@@ -667,7 +667,7 @@ python main.py --image samples/sample_cctv.jpg --no-case  <span class="c"># open
     <p><strong>Tools → Model Manager</strong> (<kbd>Ctrl</kbd>+<kbd>M</kbd>).</p>
 
     <img src="screenshots/08-model-manager.png" loading="lazy" width="2360" height="1410"
-         alt="The Model Manager listing thirty models with task, kind, status, size and licence">
+         alt="The Model Manager listing every model with task, kind, status, size and licence">
 
     <p>
       Every model is listed with its task, kind, version, status, download size and

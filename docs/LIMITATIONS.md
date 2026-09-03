@@ -227,6 +227,53 @@ anything before that: how the file was produced, transferred or handled prior
 to import is outside its knowledge. Import records the source path and the
 digest of the copy it stores, and nothing more.
 
+## 13. Low-light curve models
+
+Zero-DCE and Zero-DCE++ are the only neural models here declared
+`may_synthesise=False`, so the grounds for that need stating precisely, along
+with what it does *not* cover.
+
+**What is established.** Both networks output tone-curve coefficients rather
+than pixels. The curve `LE(x; r) = x + r*x*(x-1)` with `r` bounded to `[-1, 1]`
+has a non-negative derivative over the whole domain, so each output pixel is a
+monotonically non-decreasing function of that pixel's own input value. Measured
+with the published weights, the minimum slope of that response is `+1.0e-3`.
+No learned image prior can therefore introduce an edge, a character or a facial
+feature into a pixel. This is asserted in `tests/test_zerodce.py`; if those
+tests fail, the classification is wrong and must change.
+
+**What that does not cover.** Three things, all measured on the published
+weights:
+
+1. **Low-frequency shading is introduced.** The curve map varies spatially, so a
+   region that was uniform in the source does not stay uniform. A flat patch at
+   intensity 0.12 came out spanning 0.38 to 0.56 - a spread of 46 of 255 levels.
+   The largest step between *adjacent* pixels was 0.96 of 255, so it is a smooth
+   gradient rather than texture, but relative brightness between two parts of a
+   scene is no longer a measurement after this operation.
+2. **Shadow noise is amplified about fivefold.** A patch at intensity 0.05 with
+   sigma 4.0/255 came out at sigma 19.6/255 - a factor of 4.9 - while its mean
+   rose from 0.05 to 0.285. Denoise before brightening, and compare both
+   orderings. The auto engine warns when it proposes a low-light model on a
+   frame that also reads as noisy.
+3. **The measured advantage disappears on noisy input.** On the bundled dark
+   sample, Zero-DCE++ scored 21.68 dB against 19.27 dB for a hand-set gamma
+   curve. Repeat that with sensor noise added and the two converge to 18.58 dB
+   and 18.55 dB - and plain Zero-DCE *loses*, at 17.80 dB. Real low-light frames
+   are noisy, so do not assume the benchmark advantage transfers.
+
+**Training distribution.** Both are trained on low-light photography with
+non-reference losses. They are proposed by the auto engine only when the
+underexposure indicator dominates; an overexposed frame gets the classical tone
+mapping instead, because applying a low-light model there would be running a
+network outside the distribution it was fitted to. Nothing prevents you from
+selecting one manually - the application does not stop you - but the result
+would not be defensible.
+
+**Licence.** Upstream code and weights for both are CC BY-NC 4.0: academic
+research use, non-commercial. This is stricter than most models here and is
+shown in the Model Manager before installation.
+
 ---
 
 > Algorithmic image enhancement modifies image data. AI-based restoration may

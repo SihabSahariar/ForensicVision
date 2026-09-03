@@ -332,11 +332,18 @@ class HistoryPanel(QWidget):
             f"SHA-512    : {derivative.sha512}",
             f"MD5        : {derivative.md5}  (legacy reference only)",
         ]
-        if derivative.model_kind == "neural":
+        provenance = derivative.provenance or {}
+        if provenance.get("may_synthesise"):
             lines += [
                 "",
-                "WARNING: produced with a learned model. Detail in this image "
-                "may be synthesised rather than recovered.",
+                "WARNING: a step in this pipeline can synthesise. Detail in "
+                "this image may be invented rather than recovered.",
+            ]
+        elif derivative.model_kind == "neural":
+            lines += [
+                "",
+                "Produced with a learned model. No step in the pipeline is "
+                "capable of synthesising structure.",
             ]
         provenance = derivative.provenance
         if provenance:

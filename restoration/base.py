@@ -33,6 +33,7 @@ from core.exceptions import ModelNotAvailableError
 logger = logging.getLogger(__name__)
 
 __all__ = [
+    "format_size",
     "ParamSpec",
     "WeightSpec",
     "ModelInfo",
@@ -43,6 +44,15 @@ __all__ = [
 
 #: ``(percent, message)`` progress callback used by long-running operations.
 ProgressReporter = Callable[[int, str], None]
+
+
+def format_size(size_bytes: int) -> str:
+    """Format a byte count for display, or ``"unknown"`` when it is unset."""
+    if size_bytes <= 0:
+        return "unknown"
+    if size_bytes < 1024 * 1024:
+        return f"{size_bytes / 1024:.0f} KiB"
+    return f"{size_bytes / (1024 * 1024):.1f} MiB"
 
 
 @dataclass(frozen=True)
@@ -110,10 +120,13 @@ class WeightSpec:
     required: bool = True
 
     def size_human(self) -> str:
-        """Return the download size in MiB, or ``"unknown"``."""
-        if self.size_bytes <= 0:
-            return "unknown"
-        return f"{self.size_bytes / (1024 * 1024):.1f} MiB"
+        """Return a readable download size, or ``"unknown"``.
+
+        Files below a megabyte are reported in KiB. Rounding a 320 KiB
+        checkpoint to "0 MiB" reads as "nothing to download", which is the
+        opposite of what the Model Manager needs to convey.
+        """
+        return format_size(self.size_bytes)
 
 
 @dataclass(frozen=True)

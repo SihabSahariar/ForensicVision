@@ -19,6 +19,11 @@ htmlcov/
 # ForensicVision runtime data
 models/weights/*
 !models/weights/.gitkeep
+# Stray model weights fetched into the working tree by a library.
+*.pt
+*.pth
+*.onnx
+!models/weights/.gitkeep
 cases/*
 !cases/.gitkeep
 demo_case/
